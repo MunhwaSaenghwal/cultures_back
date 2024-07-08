@@ -343,6 +343,7 @@ app.listen(port, () => {
 });*/
 
 
+/*
 // Endpoint to update user information
 app.put('/users/:name', upload.single('profileImage'), (req, res) => {
     const { name } = req.params;
@@ -416,6 +417,97 @@ app.put('/users/:name', upload.single('profileImage'), (req, res) => {
                 read_books: existingReadBooks
             });
         });
+    });
+});
+*/
+
+app.put('/users/:name', upload.single('profileImage'), (req, res) => {
+    const { name } = req.params;
+    let userData;
+    try {
+        userData = JSON.parse(req.body.userData);
+    } catch (e) {
+        console.error('Error parsing userData:', e);
+        return res.status(400).send('Invalid userData format');
+    }
+    const { description, reviewed_books, read_books } = userData;
+    const profileImage = req.file ? req.file.buffer : null;
+
+    // Retrieve current user data
+    const selectSql = 'SELECT * FROM users WHERE name = ?';
+    db.query(selectSql, [name], (selectErr, selectResults) => {
+        if (selectErr) {
+            console.error('Error selecting user:', selectErr);
+            return res.status(500).send(selectErr);
+        }
+        if (selectResults.length === 0) {
+            console.log(`User ${name} not found`);
+            return res.status(404).send('User not found');
+        }
+
+        const currentUser = selectResults[0];
+        const updatedDescription = description || currentUser.description;
+
+        // Parse existing reviewed_books and read_books
+/*        let existingReviewedBooks = [];
+        let existingReadBooks = [];
+        try {
+            existingReviewedBooks = JSON.parse(currentUser.reviewed_books);
+            //existingReadBooks = JSON.parse(currentUser.read_books);
+        } catch (e) {
+            console.error('Error parsing existing reviewed_books:', e);
+            console.log('Current reviewed_books:', currentUser.reviewed_books);
+        }
+	    try {
+            existingReadBooks = JSON.parse(currentUser.read_books);
+        } catch (e) {
+            console.error('Error parsing existing read_books:', e);
+            console.log('Current read_books:', currentUser.read_books);
+            // 파싱에 실패하면 빈 배열 사용
+        }
+
+
+        // Merge reviewed_books and read_books
+        const updatedReviewedBooks = reviewed_books || existingReviewedBooks;
+        const updatedReadBooks = read_books || existingReadBooks;
+
+        const updateSql = 'UPDATE users SET profileImage = IFNULL(?, profileImage), description = ?, reviewed_books = ?, read_books = ? WHERE name = ?';
+        db.query(updateSql, [profileImage, updatedDescription, JSON.stringify(updatedReviewedBooks), JSON.stringify(updatedReadBooks), name], (updateErr, updateResult) => {
+            if (updateErr) {
+                console.error('Error updating user:', updateErr);
+                return res.status(500).send(updateErr);
+            }
+            console.log(`User ${name} updated successfully`);
+            res.send({
+                name,
+                profileImage: profileImage ? profileImage.toString('base64') : currentUser.profileImage ? currentUser.profileImage.toString('base64') : null,
+                description: updatedDescription,
+                reviewed_books: updatedReviewedBooks,
+                read_books: updatedReadBooks
+            });
+        });*/
+	const updateSql = 'UPDATE users SET profileImage = IFNULL(?, profileImage), description = ?, reviewed_books = ?, read_books = ? WHERE name = ?';
+        db.query(updateSql, [
+            profileImage, 
+            updatedDescription, 
+            JSON.stringify(reviewed_books), 
+            JSON.stringify(read_books), 
+            name
+        ], (updateErr, updateResult) => {
+            if (updateErr) {
+                console.error('Error updating user:', updateErr);
+                return res.status(500).send(updateErr);
+            }
+            console.log(`User ${name} updated successfully`);
+            res.send({
+                name,
+                profileImage: profileImage ? profileImage.toString('base64') : currentUser.profileImage ? currentUser.profileImage.toString('base64') : null,
+                description: updatedDescription,
+                reviewed_books: reviewed_books,
+                read_books: read_books
+            });
+        });
+
     });
 });
 
