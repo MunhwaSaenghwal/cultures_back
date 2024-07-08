@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const app = express();
 const upload2 = multer();
+require('dotenv').config();
 
 app.use(bodyParser.json());
 app.use(express.json());
@@ -17,10 +18,10 @@ const upload = multer({ storage: storage });
 
 // Create a connection to the database
 const db = mysql.createConnection({
-    host: '15.165.64.45', // Replace with your database host
-    user: 'bada', // Replace with your database user
-    password: 'ghdqkek0715', // Replace with your database password
-    database: 'cultures'
+    host: process.env.DB_HOST, // Replace with your database host
+    user: process.env.DB_USER, // Replace with your database user
+    password: process.env.DB_PASSWORD, // Replace with your database password
+    database: process.env.DB_NAME
 });
 
 // Connect to the database
