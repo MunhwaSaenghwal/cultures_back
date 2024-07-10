@@ -3,7 +3,7 @@ from pytrends.request import TrendReq
 from pytrends.exceptions import TooManyRequestsError
 
 def get_trending_keywords():
-    pytrends = TrendReq(hl='ko', tz=540)
+    pytrends = TrendReq(hl='ko', tz=540, timeout=(10, 25))
     attempts = 0
     max_attempts = 3
 
